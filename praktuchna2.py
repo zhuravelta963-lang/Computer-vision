@@ -6,8 +6,8 @@ scale = 5
 img = cv2.resize(img, (img.shape[1] // scale, img.shape[0] // scale))
 img_copy = img.copy()
 img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-lower = np.array([21, 36, 0]) #мінімальний поріг, створ.' матриц.
-upper = np.array([255, 255, 248]) #максимальний поріг
+lower = np.array([15, 36, 15]) #мінімальний поріг, створ.' матриц.
+upper = np.array([255, 255, 255]) #максимальний поріг
 mask = cv2.inRange(img, lower, upper) #в послідовності
 img = cv2.bitwise_and(img, img, mask=mask) #накладаємо маску на початкове зображ
 
