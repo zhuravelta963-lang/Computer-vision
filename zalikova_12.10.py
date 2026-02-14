@@ -5,9 +5,6 @@ import pandas as pd
 from ultralytics import YOLO
 import yt_dlp
 
-# -------------------------
-# Налаштування шляхів
-# -------------------------
 PROJECT_DIR = os.path.dirname(__file__)
 OUTPUT_DIR = os.path.join(PROJECT_DIR, 'output')
 os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -20,9 +17,6 @@ MODEL_PATH = "yolov8l.pt"
 CONF_THRESH = 0.4
 TRACKER = "bytetrack.yaml"
 
-# -------------------------
-# Отримання прямого посилання на відео
-# -------------------------
 ydl_opts = {
     'format': 'best[ext=mp4]',
     'quiet': True
@@ -34,21 +28,16 @@ with yt_dlp.YoutubeDL(ydl_opts) as ydl:
 
 cap = cv2.VideoCapture(video_url)
 
-# -------------------------
-# Завантаження моделі
-# -------------------------
 model = YOLO(MODEL_PATH)
 
 fps = cap.get(cv2.CAP_PROP_FPS)
 if fps == 0 or fps != fps:
     fps = 30
 
-# Масштаб (потрібно калібрувати!)
+
 PIXEL_TO_METER = 0.05
 
-# -------------------------
-# Змінні
-# -------------------------
+
 previous_positions = {}
 car_counter = 0
 id_map = {}
@@ -56,9 +45,7 @@ id_map = {}
 car_speed_history = {}
 car_average_speed = {}
 
-# -------------------------
-# Основний цикл
-# -------------------------
+
 while True:
     ret, frame = cap.read()
     if not ret:
@@ -115,7 +102,7 @@ while True:
         center_x = int((x1 + x2) / 2)
         center_y = int((y1 + y2) / 2)
 
-        # ROI-фільтр
+
         if center_y < roi_top:
             continue
 
@@ -133,7 +120,7 @@ while True:
             speed_mps = distance_meters * fps
             raw_speed = speed_mps * 3.6
 
-            # фільтрація шуму
+
             if raw_speed > 5:
 
                 if car_number not in car_speed_history:
@@ -141,7 +128,7 @@ while True:
 
                 car_speed_history[car_number].append(raw_speed)
 
-                # беремо середнє останніх 10 значень
+
                 last_speeds = car_speed_history[car_number][-10:]
                 speed_kmh = sum(last_speeds) / len(last_speeds)
 
@@ -155,7 +142,7 @@ while True:
         cv2.putText(frame, label, (x1, y1 - 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0,255,0), 2)
 
-    # Лінії на дорозі
+
     cv2.line(
         frame,
         (int(width * 0.4), int(height * 0.4)),
@@ -180,9 +167,7 @@ while True:
 cap.release()
 cv2.destroyAllWindows()
 
-# -------------------------
-# Збереження CSV
-# -------------------------
+
 final_data = []
 
 for car_number, avg_speed in car_average_speed.items():
